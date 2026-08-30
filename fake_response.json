@@ -1,0 +1,6 @@
+{
+  "content": [
+    {"type": "text", "text": "This is the summary..."}
+  ],
+  "usage": {"input_tokens": 50, "output_tokens": 20}
+}
