@@ -1,8 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()
-import os
-from openai import OpenAI
-client  = OpenAI()
 import sys
 import argparse
 
@@ -11,50 +6,36 @@ def read_file(filename):
         with open(filename, "r", encoding="UTF-8") as file:
             return file.read()
     except FileNotFoundError:
-        print(f"{filename} does not exists, check the current path")
+        print(f"{filename} not found, check the file name")
         sys.exit(1)
 
-def summarize_text(text):
-    response = client.chat.completions.create(
-        model = "gpt-4o-mini",
-        messages = [
-            {
-            "role" : "system",
-            "content"  : "You are a helpful assistance that provide the summary of a given text"
-         },
-         {
-            "role" : "user",
-            "content" : f"please summarize the following text \n\n {text}"
-         }
-        ],
-         temperature= 0.3,
-         max_tokens = 150
-    )
-    return response.choices[0].message.content
-
-
-def count_words(text):
-    dic = dict()
-    for word in text:
-        word = word.lower()
-        if word in dic:
-            dic[word] +=1
+def counter(content):
+    word_count = dict()
+    for word in content:
+        word = word.lower().strip(".,?!")
+        if word in word_count:
+            word_count[word] +=1
         else:
-            dic[word] = 1
+            word_count[word] = 1
 
-    counts = sorted(dic.items(), key = lambda x : x[1], reverse= True)
-    return counts[:3]
+    lis = sorted(word_count.items(), key = lambda x : x[1], reverse= True)
+    return lis[:3]
 
 def main():
-    parser = argparse.ArgumentParser(description="Enter the name of the file")
-    parser.add_argument("filename", help = "enter file name")
-    parse = parser.parse_args()
-    text = read_file(parse.filename)
-    top = count_words(text.split('.,!?'))
-    print(summarize_text(text)) 
-    print("Top 3 words are :",top)
+    # filename = "sample.txt"
+
+    parser = argparse.ArgumentParser(description= "code for taking file parameter")
+    parser.add_argument("filename", help = "Enter the name of the file here")
+    parser.add_argument("--word_count", action = "store_true")
+    args = parser.parse_args()
+    content = read_file(args.filename)
+    print(counter(content.split()))
+
+    if args.word_count:
+        print(f" Word Count : {len(content.split())}")
+    else:
+        print(f"{len(content.split())}")
 
 if __name__ == "__main__":
     main()
-
 
