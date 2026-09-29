@@ -1,5 +1,13 @@
 import sys
 import argparse
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
+
+
+load_dotenv()
+client = OpenAI()
+
 
 def read_file(filename):
     try:
@@ -21,6 +29,26 @@ def counter(content):
     lis = sorted(word_count.items(), key = lambda x : x[1], reverse= True)
     return lis[:3]
 
+def summarize_text(content):
+    response = client.chat.completions.create(
+        model = "gpt-4o-mini",
+        messages = [
+            {
+                "role" : "system",
+                "content" : "You are an helpful assistance which provides short summary of the content"
+            },
+
+            {
+                "role" : "user",
+                "content" : f"please summarize following text {content}"
+            }
+        ],
+        temperature= 0.3,
+        max_tokens= 300
+    )
+    return response.choices[0].message.content
+
+
 def main():
     # filename = "sample.txt"
 
@@ -29,6 +57,7 @@ def main():
     parser.add_argument("--word_count", action = "store_true")
     args = parser.parse_args()
     content = read_file(args.filename)
+    print(summarize_text(content))
     print(counter(content.split()))
 
     if args.word_count:
